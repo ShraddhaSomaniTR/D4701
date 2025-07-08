@@ -6,11 +6,13 @@ from dotenv import load_dotenv
 load_dotenv()
 
 def get_database_connection():
-    """Create database connection using environment variables."""
-    db_url = os.getenv('DATABASE_URL')
-    if not db_url:
-        raise ValueError("DATABASE_URL environment variable not set")
-    return create_engine(db_url)
+    """Create database connection using a hardcoded SQL Server connection string."""
+    # SQLAlchemy connection string for SQL Server using pyodbc
+    connection_string = (
+        "mssql+pyodbc://dev-app-db:8mLfkU9Q7ALuTVke@w2-dev-db01.cd701adc0fa4.database.windows.net:1433/SPDEV2007"
+        "?driver=ODBC+Driver+17+for+SQL+Server"
+    )
+    return create_engine(connection_string)
 
 def get_schema_info() -> str:
     """
