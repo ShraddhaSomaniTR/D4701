@@ -1,14 +1,52 @@
 import os
 import json
+import re
+import datetime
+import jwt
+from TokenGeneration import get_token_from_url  # Import the token generation function
+from typing import Dict
 from dotenv import load_dotenv
 from websockets.sync.client import connect
 
 load_dotenv()
 
+# --- Load Configuration from config.json ---
+with open("config.json", "r") as config_file:
+    config = json.load(config_file)
+
+# --- Token validation helper ---
+def is_token_valid(token):
+    try:
+        # Decode JWT without verification to get exp
+        payload = jwt.decode(token, options={"verify_signature": False, "verify_aud": False})
+        exp = payload.get("exp")
+        if exp is None:
+            return False
+        # Use timezone-aware datetime for UTC
+        exp_dt = datetime.datetime.fromtimestamp(exp, datetime.timezone.utc)
+        now_dt = datetime.datetime.now(datetime.timezone.utc)
+        # Check if token is expired (with 30s buffer)
+        return exp_dt > now_dt + datetime.timedelta(seconds=30)
+    except Exception:
+        return False
+
+# --- Get or refresh token if expired ---
+def get_or_refresh_token():
+    token = config.get("TOKEN")
+    if token and is_token_valid(token):
+        return token
+    portal_url = config["PORTAL_URL"]
+    token = get_token_from_url(portal_url)
+    # Save new token to config.json
+    config["TOKEN"] = token
+    with open("config.json", "w") as f:
+        json.dump(config, f, indent=2)
+    return token
+
 # Constants
-WORKFLOW_ID = "8556ba87-acf8-4049-98a3-fc62a300656c"  # Workflow ID for Open AI GPT4
-ESSO_TOKEN = os.getenv("ESSO_TOKEN", "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IlJERTBPVEF3UVVVMk16Z3hPRUpGTkVSRk5qUkRNakkzUVVFek1qZEZOVEJCUkRVMlJrTTRSZyJ9.eyJodHRwczovL3RyLmNvbS9mZWRlcmF0ZWRfdXNlcl9pZCI6IjYxMjQ3ODciLCJodHRwczovL3RyLmNvbS9mZWRlcmF0ZWRfcHJvdmlkZXJfaWQiOiJUUlNTTyIsImh0dHBzOi8vdHIuY29tL2xpbmtlZF9kYXRhIjpbeyJzdWIiOiJvaWRjfHNzby1hdXRofFRSU1NPfDYxMjQ3ODcifV0sImh0dHBzOi8vdHIuY29tL2V1aWQiOiJlMmZhNjVlNC0xMTEwLTRhOWItOGI5YS02YWFmM2M5YzI3NmUiLCJodHRwczovL3RyLmNvbS9hc3NldElEIjoiYTIwODE5OSIsImlzcyI6Imh0dHBzOi8vYXV0aC50aG9tc29ucmV1dGVycy5jb20vIiwic3ViIjoiYXV0aDB8NjVmMDQwMWFiNGIxOTkyNDJiNmQxMjQ3IiwiYXVkIjpbIjQ5ZDcwYTU4LTk1MDktNDhhMi1hZTEyLTRmNmUwMGNlYjI3MCIsImh0dHBzOi8vbWFpbi5jaWFtLnRob21zb25yZXV0ZXJzLmNvbS91c2VyaW5mbyJdLCJpYXQiOjE3NTIxMzQ4MDksImV4cCI6MTc1MjIyMTIwOSwic2NvcGUiOiJvcGVuaWQgcHJvZmlsZSBlbWFpbCIsImF6cCI6InRnVVZad1hBcVpXV0J5dXM5UVNQaTF5TnlvTjJsZmxJIn0.jmL1rsMpbnuPIskSFfjvBH0JsJPNZWqhw6UkOsFfnPBAAllxutFdCzycm4fgOfisMllDh9mrjkzY6NKFSeKfcAE3WrTl420MNfqM6LWIse873byg8vsgqKwc9KhdV1GQiFrQJWyr9z6szr4mvL3sVPzTE2GFL-Pniyyw8G7oHmS0yUfcbT_oP0yEh2a7kJekzAKntWFzl-N8Culq39K2DW4PlNedktvOXa676RNKsWQ7y93bp5phhH1dYaezRxt8AzwnyzaNTruHFBts7FtuGPeSVkoykOZ5BjhB4KecVsCw9ZlPSekQDevIgM4pQaZn_i8aVAlnQmGTdC4o8MY90Q")
-URL = f"wss://wymocw0zke.execute-api.us-east-1.amazonaws.com/prod/?Authorization={ESSO_TOKEN}"
+WORKFLOW_ID = config["WORKFLOW_ID"]  # Workflow ID for Open AI GPT4
+TOKEN = get_or_refresh_token()
+WEBSOCKET_URL = config["WEBSOCKET_URL"].replace("{TOKEN}", TOKEN)
 
 def query_workflow(query: str, workflow_id: str = WORKFLOW_ID, is_persistence_allowed: str = "false"):
     """
@@ -29,7 +67,7 @@ def query_workflow(query: str, workflow_id: str = WORKFLOW_ID, is_persistence_al
         "is_persistence_allowed": is_persistence_allowed
     }
     
-    ws = connect(URL)
+    ws = connect(WEBSOCKET_URL)
     ws.send(json.dumps(msg))
     answer = str()
     cost_tracker = dict()
@@ -76,3 +114,133 @@ def generate_sql_query(prompt: str, schema_info: str) -> str:
         return answer.strip()
     except Exception as e:
         return f"Error generating SQL query: {str(e)}"
+
+# Add these functions to your existing openai_utils.py file
+
+def optimize_stored_procedure(procedure_definition: str, procedure_name: str) -> tuple:
+    """
+    Optimize stored procedure using AI.
+    
+    Args:
+        procedure_definition (str): Current stored procedure definition
+        procedure_name (str): Name of the procedure
+        performance_data (Dict): Performance metrics
+        schema_info (str): Database schema information
+        
+    Returns:
+        tuple: (optimized_procedure, optimization_suggestions, system_prompt)
+    """
+    try:
+        # Construct the system prompt for optimization
+        system_prompt = f"""You are a SQL Server stored procedure optimization expert. 
+        
+       
+        
+      
+        
+        Analyze the following stored procedure and provide:
+        1. An optimized version of the stored procedure
+        2. Detailed optimization suggestions explaining what was changed and why
+        3. Performance improvement recommendations
+        
+        Focus on:
+        - Query optimization (indexes, joins, WHERE clauses)
+        - Parameter usage and SQL injection prevention
+        - Error handling improvements
+        - Code readability and maintainability
+        - Performance bottlenecks
+        
+        Stored Procedure Name: {procedure_name}
+        
+        Current Definition:
+        {procedure_definition}
+        
+        Please provide the response in the following format:
+        
+        ## Optimized Stored Procedure:
+        ```sql
+        [optimized procedure code here]
+        ```
+        
+        ## Optimization Suggestions:
+        [detailed suggestions here]
+        """
+        
+        # Get response through websocket
+        answer, _ = query_workflow(system_prompt)
+        
+        # Parse the response to extract optimized procedure and suggestions
+        parts = answer.split("## Optimization Suggestions:")
+        optimized_part = parts[0].replace("## Optimized Stored Procedure:", "").strip()
+        suggestions_part = parts[1].strip() if len(parts) > 1 else "No specific suggestions provided."
+        
+        # Clean the optimized procedure (remove markdown formatting)
+        optimized_procedure = clean_sql_code(optimized_part)
+        
+        return optimized_procedure, suggestions_part, system_prompt
+        
+    except Exception as e:
+        return f"Error optimizing stored procedure: {str(e)}", "", system_prompt
+
+def analyze_stored_procedure_issues(procedure_definition: str, procedure_name: str) -> tuple:
+    """
+    Analyze stored procedure for potential issues and best practices.
+    
+    Args:
+        procedure_definition (str): Stored procedure definition
+        procedure_name (str): Name of the procedure
+        
+    Returns:
+        tuple: (analysis_report, system_prompt)
+    """
+    try:
+        system_prompt = f"""You are a SQL Server code review expert. 
+        
+        Analyze the following stored procedure for:
+        1. Security vulnerabilities (SQL injection, permissions)
+        2. Performance issues (missing indexes, inefficient queries)
+        3. Best practices violations
+        4. Code quality issues
+        5. Error handling problems
+        6. Maintainability concerns
+        
+        Provide a detailed analysis report with:
+        - Issue severity (High/Medium/Low)
+        - Specific recommendations
+        - Code examples where applicable
+        
+        Stored Procedure Name: {procedure_name}
+        
+        Definition:
+        {procedure_definition}
+        """
+        
+        # Get response through websocket
+        answer, _ = query_workflow(system_prompt)
+        
+        return answer, system_prompt
+        
+    except Exception as e:
+        return f"Error analyzing stored procedure: {str(e)}", system_prompt
+
+def clean_sql_code(sql_code: str) -> str:
+    """
+    Clean SQL code by removing markdown formatting.
+    
+    Args:
+        sql_code (str): SQL code with potential markdown
+        
+    Returns:
+        str: Cleaned SQL code
+    """
+    # Remove markdown code fences
+    cleaned = re.sub(r'```sql\s*', '', sql_code)
+    cleaned = re.sub(r'```\s*', '', cleaned)
+    
+    # Remove any remaining backticks
+    cleaned = cleaned.replace('`', '')
+    
+    # Strip whitespace
+    cleaned = cleaned.strip()
+    
+    return cleaned
