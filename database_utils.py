@@ -3,6 +3,7 @@ from typing import Dict, List, Set
 import os
 import re
 from dotenv import load_dotenv
+from table_column_matcher import get_relevant_tables_fuzz, get_relevant_columns_fuzz
 
 load_dotenv()
 
@@ -190,6 +191,10 @@ def get_relevant_columns(query_keywords: Set[str], table_name: str, inspector) -
  
     return relevant_columns
 
+def get_all_columns(table_name: str, inspector) -> List[Dict]:
+    all_columns = inspector.get_columns(table_name)
+    return all_columns
+
 def get_filtered_schema_info(query: str) -> str:
     """
     Get database schema information filtered based on the input query.
@@ -212,21 +217,35 @@ def get_filtered_schema_info(query: str) -> str:
         all_tables = inspector.get_table_names()
         
         # Find relevant tables
-        relevant_tables = get_relevant_tables(query_keywords, all_tables)
-        
-        # If no relevant tables found, use first 5 tables
-        if not relevant_tables:
-            relevant_tables = all_tables[:5]
+        relevant_tables = get_relevant_tables_fuzz(query_keywords, all_tables)
         
         schema_info = []
-        for table_name in relevant_tables:
-            # Get relevant columns for this table
-            relevant_columns = get_relevant_columns(query_keywords, table_name, inspector)
+        # If no relevant tables found, use first 5 tables
+        if not relevant_tables:
             
-            column_info = [f"{col['name']}({col['type'].__class__.__name__[:3]})" 
+            relevant_tables = all_tables[:5]
+            # Get relevant columns for this table
+            for table_name in relevant_tables:
+                relevant_columns = get_relevant_columns(query_keywords, table_name, inspector)
+
+                column_info = [f"{col['name']}({col['type'].__class__.__name__[:3]})" 
                           for col in relevant_columns]
             
-            schema_info.append(f"{table_name}: {', '.join(column_info)}")
+                schema_info.append(f"{table_name}: {', '.join(column_info)}")
+        
+        else:
+            # For relevant tables, get ALL columns
+            for table_name in relevant_tables:
+            # Get relevant columns for this table
+                relevant_columns = get_all_columns(table_name, inspector)
+            
+                column_info = [f"{col['name']}({col['type'].__class__.__name__[:3]})" 
+                          for col in relevant_columns]
+            
+                schema_info.append(f"{table_name}: {', '.join(column_info)}")
+        
+            
+        
         
         result = " | ".join(schema_info)
         

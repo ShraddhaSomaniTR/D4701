@@ -31,11 +31,13 @@
     <Compile Include="app.py" />
     <Compile Include="database_utils.py" />
     <Compile Include="openai_utils.py" />
+    <Compile Include="table_column_matcher.py" />
     <Compile Include="TokenGeneration.py" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="config.json" />
     <Content Include="requirements.txt" />
+    <Content Include="txt requirements.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.Web.targets" />
   <!-- Specify pre- and post-build commands in the BeforeBuild and 
