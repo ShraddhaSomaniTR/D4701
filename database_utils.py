@@ -215,6 +215,7 @@ def get_filtered_schema_info(query: str) -> str:
         
         # Get all table names
         all_tables = inspector.get_table_names()
+        # all_tables = get_schema_info()
         
         # Find relevant tables
         relevant_tables = get_relevant_tables_fuzz(query_keywords, all_tables)
@@ -264,38 +265,21 @@ def get_schema_info() -> str:
     """
     try:
         engine = get_database_connection()
-        query = """
-        SELECT
-            t.name AS table_name,
-            c.name AS column_name,
-            ty.name AS data_type
+        filtered_tables_query = """
+        SELECT t.name AS table_name
         FROM sys.tables t
         INNER JOIN sys.schemas s ON t.schema_id = s.schema_id
-        INNER JOIN sys.columns c ON t.object_id = c.object_id
-        INNER JOIN sys.types ty ON c.user_type_id = ty.user_type_id
-        WHERE
-            s.name = 'dbo'
+        WHERE s.name = 'dbo'
             AND t.name NOT LIKE 'BK\_%' ESCAPE '\\'
             AND t.name NOT LIKE 'RF\_%' ESCAPE '\\'
-        ORDER BY t.name, c.column_id
+        ORDER BY t.name
         """
+        
         with engine.connect() as connection:
-            result = connection.execute(text(query))
-            rows = result.fetchall()
- 
-        # Organize results by table
-        from collections import defaultdict
-        table_columns = defaultdict(list)
-        for row in rows:
-            table_columns[row.table_name].append(f"{row.column_name} ({row.data_type})")
- 
-        schema_info = []
-        for table_name, columns in table_columns.items():
-            schema_info.append(f"Table: dbo.{table_name}")
-            schema_info.append("Columns: " + ", ".join(columns))
-            schema_info.append("")
- 
-        return "\n".join(schema_info)
+            result = connection.execute(text(filtered_tables_query))
+            all_tables = [row.table_name for row in result.fetchall()]
+
+        return all_tables
     except Exception as e:
         return f"Error fetching schema information: {str(e)}"
 

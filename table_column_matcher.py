@@ -15,7 +15,7 @@ def get_database_connection():
 def get_relevant_tables_fuzz(
     query_keywords: Set[str], 
     all_tables: List[str], 
-    fuzzy_threshold: int = 80  # Adjust threshold as needed
+    fuzzy_threshold: int = 70  # Adjust threshold as needed
 ) -> List[str]:
     """
     Find tables relevant to the query using exact, column, and fuzzy matching.
