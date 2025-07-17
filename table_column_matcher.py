@@ -57,13 +57,13 @@ def get_relevant_tables_fuzz(
             kw, 
             all_tables_lc, 
             scorer=fuzz.token_sort_ratio, 
-            limit=10
+            limit=5
         )
         for match, score, idx in matches:
             if score >= fuzzy_threshold:
                 relevant_tables.add(table_lc_map[match])
     if relevant_tables:
-        return list(relevant_tables)
+        return list(relevant_tables)[:10]
  
     # 4. Fuzzy column name matching (optional, can be slow for many tables/columns)
     try:
@@ -84,11 +84,11 @@ def get_relevant_tables_fuzz(
                         relevant_tables.add(table)
                         break
         if relevant_tables:
-            return list(relevant_tables)
+            return list(relevant_tables)[:10]
     except Exception as e:
         print(f"Error in fuzzy column matching: {str(e)}")
  
-    return list(relevant_tables)
+    return list(relevant_tables)[:10]
 
 def get_relevant_columns_fuzz(
     query_keywords: Set[str],

@@ -214,7 +214,9 @@ def get_filtered_schema_info(query: str) -> str:
         query_keywords = extract_keywords_from_query(query)
         
         # Get all table names
-        all_tables = inspector.get_table_names()
+        unfiltered_tables = inspector.get_table_names(schema = 'dbo')
+
+        all_tables = [table for table in unfiltered_tables if 'BK_' not in table and 'RF_' not in table and '_bck' not in table]
         # all_tables = get_schema_info()
         
         # Find relevant tables
@@ -227,7 +229,7 @@ def get_filtered_schema_info(query: str) -> str:
             relevant_tables = all_tables[:5]
             # Get relevant columns for this table
             for table_name in relevant_tables:
-                relevant_columns = get_relevant_columns(query_keywords, table_name, inspector)
+                relevant_columns = get_relevant_columns_fuzz(query_keywords, table_name, inspector)
 
                 column_info = [f"{col['name']}({col['type'].__class__.__name__[:3]})" 
                           for col in relevant_columns]
