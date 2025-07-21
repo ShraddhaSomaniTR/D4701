@@ -1,0 +1,15 @@
+[
+  {
+    "Binder": "EngagementID",
+    "Email": "EngagementEmail",
+    "BinderID": "EngagementID",
+    "BinderType": "EngagementType",
+    "CCH": "TaxsoftwareID = 3",
+    "GoSystem": "TaxsoftwareID = 1",
+    "Error": "JobStatus = -1",
+    "Awaiting": "JobStatus = 1",
+    "InProcess": "JobStatus = 2",
+    "Completed": "JobStatus = 0",
+    "CCH PrePorting": "JobTypeID = 109"
+  }
+]

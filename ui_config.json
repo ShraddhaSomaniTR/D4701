@@ -1,0 +1,31 @@
+{
+  "ui_settings": {
+    "show_welcome_by_default": true,
+    "enable_copy_feature": true,
+    "show_debug_info": false,
+    "max_query_examples": 5,
+    "default_table_height": 400
+  },
+  "example_queries": [
+    "Show me all completed jobs from last month",
+    "Find all CCH binders with errors",
+    "List all pending engagements with their emails",
+    "Count jobs by status for this year",
+    "Show me the latest 10 jobs that are in process",
+    "Find all GoSystem engagements awaiting processing",
+    "Show me all binders created this week",
+    "List all emails for jobs that have errors"
+  ],
+  "help_tooltips": {
+    "sql_generator": {
+      "query_input": "Describe what data you want to see in plain English. Use business terms - they'll be automatically translated to database terms.",
+      "business_terms": "Terms like 'Binder', 'Email', 'CCH', 'Completed' are automatically translated to the correct database column names.",
+      "performance": "The system automatically optimizes large queries by filtering the database schema to include only relevant tables and columns."
+    },
+    "sp_optimizer": {
+      "optimization": "AI analyzes your stored procedure for performance improvements, security issues, and best practices.",
+      "performance_analysis": "View execution statistics and identify bottlenecks in your stored procedures.",
+      "code_review": "Get detailed analysis of code quality, security vulnerabilities, and maintainability issues."
+    }
+  }
+}

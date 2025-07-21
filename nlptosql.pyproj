@@ -30,6 +30,9 @@
   <ItemGroup>
     <Compile Include="app.py" />
     <Compile Include="database_utils.py" />
+    <Compile Include="Keywordmatcher.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="openai_utils.py" />
     <Compile Include="table_column_matcher.py" />
     <Compile Include="TokenGeneration.py" />
@@ -38,6 +41,8 @@
     <Content Include="config.json" />
     <Content Include="requirements.txt" />
     <Content Include="txt requirements.txt" />
+    <Content Include="ui_config.json" />
+    <Content Include="userfriendly.json" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.Web.targets" />
   <!-- Specify pre- and post-build commands in the BeforeBuild and 

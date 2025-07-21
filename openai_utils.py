@@ -89,7 +89,7 @@ def query_workflow(query: str, workflow_id: str = WORKFLOW_ID, is_persistence_al
 
 def generate_sql_query(prompt: str, schema_info: str) -> str:
     """
-    Generate SQL query from natural language prompt using websocket API.
+    Generate SQL query from natural language prompt using websocket API.                                            
     
     Args:
         prompt (str): Natural language query
@@ -104,7 +104,8 @@ def generate_sql_query(prompt: str, schema_info: str) -> str:
         {schema_info}
         
         Convert the following natural language query to SQL.
-        Return ONLY the SQL query without any explanations."""
+        Return ONLY the SQL query without any explanations.
+        Consider only column name present in prompt. """
 
         # Format the complete prompt
         full_prompt = f"{system_prompt}\n\nQuery: {prompt}"

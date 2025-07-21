@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, inspect, text
+from sqlalchemy import create_engine, inspect, text, MetaData
 from typing import Dict, List, Set
 import os
 import re
@@ -38,7 +38,7 @@ def extract_keywords_from_query(query: str) -> Set[str]:
         'should', 'may', 'might', 'can', 'show', 'me', 'all', 'get', 'find',
         'list', 'display', 'give', 'tell', 'what', 'which', 'who', 'when',
         'where', 'how', 'why', 'their', 'my', 'your', 'his', 'her', 'its',
-        'our', 'this', 'that', 'these', 'those'
+        'our', 'this', 'that', 'these', 'those', 'detail','details'
     }
     
     # Extract words (alphanumeric sequences)
@@ -215,6 +215,13 @@ def get_filtered_schema_info(query: str) -> str:
         
         # Get all table names
         unfiltered_tables = inspector.get_table_names(schema = 'dbo')
+
+        # Create a MetaData instance
+        # metadata = MetaData()
+ 
+        # Reflect the schema
+        # metadata.reflect(bind=engine, schema = 'dbo')
+        # unfiltered_tables = list(metadata.tables.keys())
 
         all_tables = [table for table in unfiltered_tables if 'BK_' not in table and 'RF_' not in table and '_bck' not in table]
         # all_tables = get_schema_info()

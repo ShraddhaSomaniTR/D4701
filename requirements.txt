@@ -8,3 +8,5 @@ selenium>=4.0.0
 webdriver-manager>=3.8.0
 PyJWT>=2.8.0
 pyperclip>=1.8.2
+flashtext>=2.7
+psutil>=7.0.0
