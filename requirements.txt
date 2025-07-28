@@ -10,3 +10,4 @@ PyJWT>=2.8.0
 pyperclip>=1.8.2
 flashtext>=2.7
 psutil>=7.0.0
+rapidfuzz>=3.13.0

@@ -77,7 +77,7 @@ def get_relevant_tables_fuzz(
                     kw, 
                     col_names, 
                     scorer=fuzz.token_sort_ratio, 
-                    limit=10
+                    limit=5
                 )
                 for match, score, idx in matches:
                     if score >= fuzzy_threshold:

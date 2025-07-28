@@ -318,16 +318,27 @@ def generate_sql_tool(keyword_processor, ui_config=None):
         for i, example in enumerate(examples):
             if st.button(f"📝 {example}", key=f"example_{i}"):
                 st.session_state.query_input = example
+                # Clear the text area session state to force refresh
+                if 'query_text_area' in st.session_state:
+                    del st.session_state.query_text_area
                 st.rerun()
     
 
     query_placeholder = "Example: Show me all customers from New York ordered by their total purchases"
+    
+    # Handle query input from history rerun or examples
+    text_area_value = ""
+    if 'query_input' in st.session_state:
+        text_area_value = st.session_state.query_input
+        # Set the text area session state directly to ensure it updates
+        st.session_state.query_text_area = text_area_value
+        # Clean up the temporary state
+        del st.session_state.query_input
         
     raw_nl_query = st.text_area(
             "Enter your question in natural language:", 
             height=120,
             placeholder=query_placeholder,
-            value=st.session_state.get('query_input',''),
             help="Describe what data you want to see in plain English. Use business terms - they'll be automatically translated to database terms.",
             key="query_text_area"
     )
@@ -338,10 +349,6 @@ def generate_sql_tool(keyword_processor, ui_config=None):
         #         st.session_state['query_text_area'] = ""
         #         # Clear the actual text area by rerunning
         #         # st.rerun()
-    
-    # Clear the session state after using it
-    if 'query_input' in st.session_state:
-        del st.session_state.query_input
     
     nl_query = keyword_processor.replace_keywords(raw_nl_query)
     
@@ -641,9 +648,9 @@ def optimize_sp_tool():
                         st.subheader("💡 Optimization Suggestions")
                         st.markdown(suggestions)
                         
-                        # Debug info
-                        with st.expander("🛠️ System Prompt (for debugging)"):
-                            st.text(system_prompt)
+                        # # Debug info
+                        # with st.expander("🛠️ System Prompt (for debugging)"):
+                        #     st.text(system_prompt)
                 else:
                     st.warning("Please paste your stored procedure code.")
     
@@ -843,9 +850,9 @@ def optimize_sp_tool():
                                 st.subheader("📋 Code Analysis Report")
                                 st.markdown(analysis_report)
                                 
-                                # Debug info
-                                with st.expander("🛠️ System Prompt (for debugging)"):
-                                    st.text(system_prompt)
+                                # # Debug info
+                                # with st.expander("🛠️ System Prompt (for debugging)"):
+                                #     st.text(system_prompt)
                 else:
                     st.warning("No stored procedures found in the database.")
                     
@@ -873,9 +880,9 @@ def optimize_sp_tool():
                         st.subheader("📋 Code Analysis Report")
                         st.markdown(analysis_report)
                         
-                        # Debug info
-                        with st.expander("🛠️ System Prompt (for debugging)"):
-                            st.text(system_prompt)
+                        # # Debug info
+                        # with st.expander("🛠️ System Prompt (for debugging)"):
+                        #     st.text(system_prompt)
                 else:
                     st.warning("Please paste your stored procedure code.")
 
