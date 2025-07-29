@@ -94,7 +94,7 @@ def get_relevant_columns_fuzz(
     query_keywords: Set[str],
     table_name: str,
     inspector,
-    fuzzy_threshold: int = 80,
+    fuzzy_threshold: int = 70,
     fallback_count: int = 5
 ) -> List[Dict]:
     """
@@ -126,7 +126,7 @@ def get_relevant_columns_fuzz(
             kw,
             col_names_lc,
             scorer=fuzz.token_sort_ratio,
-            limit=2
+            limit=5
         )
         for match, score, idx in matches:
             if score >= fuzzy_threshold and idx not in matched_indices:

@@ -7,9 +7,9 @@
     "default_table_height": 400
   },
   "example_queries": [
-    "Show me all completed jobs from last month",
-    "Find all CCH binders with errors",
-    "List all pending engagements with their emails",
+    "get me  records from SPQueueManagerErrors table having errorcode as 1313",
+    "I required result from spqueuemangererrors  marked for client dependency",
+    "get me records from sptsfromfeild for Taxyear 2024 , taxsoftwareid 3 and ExportPath contains TaxPayername",
     "Count jobs by status for this year",
     "Show me the latest 10 jobs that are in process",
     "Find all GoSystem engagements awaiting processing",

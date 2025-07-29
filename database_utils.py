@@ -12,7 +12,7 @@ def get_database_connection():
     """Create database connection using a hardcoded SQL Server connection string."""
     # SQLAlchemy connection string for SQL Server using pyodbc
     connection_string = (
-        "mssql+pyodbc://dev-app-db:8mLfkU9Q7ALuTVke@w2-dev-db01.cd701adc0fa4.database.windows.net:1433/SPDEV2007"
+        "mssql+pyodbc://SPDevTeam1:b^$YL496Z()5Vp_9@10.86.193.125/SPDEV2007"
         "?driver=ODBC+Driver+17+for+SQL+Server"
     )
     return create_engine(connection_string)

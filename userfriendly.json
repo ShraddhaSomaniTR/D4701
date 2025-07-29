@@ -11,6 +11,10 @@
     "Awaiting": "JobStatus = 1",
     "InProcess": "JobStatus = 2",
     "Completed": "JobStatus = 0",
-    "CCH PrePorting": "JobTypeID = 109"
+    "CCH PrePorting": "JobTypeID = 109",
+    "CCH Porting": "JobTypeID = 112",
+    "CCH Export": "JobTypeID = 131",
+    "Ax Import": "JobTypeID = 111",
+    "Ax Export": "JobTypeID = 132"
   }
 ]
